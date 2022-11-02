@@ -6,7 +6,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>gd</title>
+        <title>특가 리퍼몰</title>
       </Head>
       <Component {...pageProps} />
     </>

@@ -10,7 +10,7 @@ import { injectClassNames } from "../utils/utils";
 import { BreakPoint } from "../utils/constatns";
 
 export default function Home() {
-  const [type, setType] = useState<TItemType>("AIRPOT");
+  const [type, setType] = useState<TItemType | string>("AIRPOT");
 
   const [data, fetch, isLoading, isInit] = useHttpRequest(() =>
     axios.get<{ data: IItemModel[] }>(`http://13.125.204.4:5000/api/v1/hoon/product/returnItem?type=${type}`).then((res) => res.data.data)
@@ -39,17 +39,21 @@ export default function Home() {
           {!isLoading &&
             isInit &&
             data?.map((item) => (
-              <Item onClick={() => handleItemClick(item.url)}>
+              <Item key={item.url} onClick={() => handleItemClick(item.url)}>
                 <div className="thumbnail">
                   <img src={item.image} />
                 </div>
                 <div className="title">{item.name.slice(0, 40)}</div>
 
                 {!!item.originPrice && <div className="original-price">{Number(item.originPrice).toLocaleString()}</div>}
-                <div className="price">
-                  {Number(item.price).toLocaleString()}
-                  <span style={{ marginLeft: "2px" }}>원</span>
-                </div>
+                {item.price > 0 ? (
+                  <div className="price">
+                    {Number(item.price).toLocaleString()}
+                    <span style={{ marginLeft: "2px" }}>원</span>
+                  </div>
+                ) : (
+                  <div style={{ color: "#e97070" }}>품절</div>
+                )}
                 {!!item.danawaPrice && (
                   <div className="danawa-price">
                     <span>다나와</span>
@@ -72,28 +76,41 @@ const Layout = styled.div`
 
 const Container = styled.div`
   width: 100%;
-  max-width: 550px;
+  max-width: 940px;
 `;
 
 const Title = styled.div`
   width: 100%;
   text-align: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  margin: 20px 0;
+  margin-top: 28px;
 `;
 
 const Item = styled.div`
   cursor: pointer;
 
-  width: calc(33.33% - 8px);
-  min-height: calc(33.33% - 8px);
+  width: calc(20% - 16px);
+  min-width: calc(20% - 16px);
 
-  margin-bottom: 26px;
-  margin-right: 12px;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  min-height: 288px;
 
-  &:nth-of-type(3n) {
+  &:nth-of-type(5n) {
     margin-right: 0px;
+  }
+
+  ${BreakPoint.Mobile} {
+    width: calc(33.33% - 8px);
+    min-width: calc(33.33% - 8px);
+    min-height: 232px;
+
+    margin-right: 12px;
+
+    &:nth-of-type(3n) {
+      margin-right: 0px;
+    }
   }
 
   & > .thumbnail {
@@ -114,10 +131,10 @@ const Item = styled.div`
   & > .title {
     margin-top: 8px;
     margin-bottom: 8px;
+    line-height: 1.14;
 
     ${BreakPoint.Mobile} {
       font-size: 14px;
-      line-height: 1.1;
     }
   }
 
@@ -157,7 +174,7 @@ const ItemList = styled.div`
   width: 100%;
   flex-wrap: wrap;
   box-sizing: border-box;
-  margin-top: 20px;
+  margin-top: 40px;
 
   padding: 0 20px;
 
@@ -172,7 +189,12 @@ const CategoryRow = styled.div`
   border-radius: 4px;
   border: 1px solid #808080;
   flex-wrap: wrap;
-  margin: 0px 6px;
+
+  margin: 42px 6px 0px;
+
+  ${BreakPoint.Mobile} {
+    margin: 26px 6px 0px;
+  }
 
   & > .item-type {
     font-size: 16px;
