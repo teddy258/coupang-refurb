@@ -21,6 +21,7 @@ export default function Home() {
 
   useEffect(() => {
     fetch();
+    setNow(DateTime.now().toFormat("hh시 mm분 ss초"));
   }, [type]);
 
   useInterval(() => {
