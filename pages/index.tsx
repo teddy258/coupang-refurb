@@ -8,9 +8,12 @@ import { useEffect, useState } from "react";
 import { EItemType, IItemModel, TItemType } from "../types/item.interface";
 import { injectClassNames } from "../utils/utils";
 import { BreakPoint } from "../utils/constatns";
+import { useInterval } from "react-use";
+import { DateTime } from "luxon";
 
 export default function Home() {
   const [type, setType] = useState<TItemType | string>("AIRPOT");
+  const [now, setNow] = useState("");
 
   const [data, fetch, isLoading, isInit] = useHttpRequest(() =>
     axios.get<{ data: IItemModel[] }>(`http://13.125.204.4:5000/api/v1/hoon/product/returnItem?type=${type}`).then((res) => res.data.data)
@@ -20,6 +23,10 @@ export default function Home() {
     fetch();
   }, [type]);
 
+  useInterval(() => {
+    setNow(DateTime.now().toFormat("hh시 mm분 ss초"));
+  }, 1000);
+
   function handleItemClick(url: string) {
     window.open(url);
   }
@@ -27,7 +34,8 @@ export default function Home() {
   return (
     <Layout>
       <Container>
-        <Title>쿠팡 리퍼몰</Title>
+        <Title>쿠팡 리퍼몰 </Title>
+        <Time>{now} 실시간 최신가</Time>
         <CategoryRow>
           {Object.entries(EItemType).map(([key, value]) => (
             <div
@@ -102,6 +110,13 @@ const Layout = styled.div`
 const Container = styled.div`
   width: 100%;
   max-width: 940px;
+`;
+
+const Time = styled.div`
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  margin-top: 16px;
 `;
 
 const Title = styled.div`
