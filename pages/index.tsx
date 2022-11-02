@@ -30,7 +30,11 @@ export default function Home() {
         <Title>쿠팡 리퍼몰</Title>
         <CategoryRow>
           {Object.entries(EItemType).map(([key, value]) => (
-            <div onClick={() => setType(key)} className={injectClassNames({ name: "item-type" }, { name: "selected", condition: type === key })}>
+            <div
+              key={key}
+              onClick={() => setType(key)}
+              className={injectClassNames({ name: "item-type" }, { name: "selected", condition: type === key })}
+            >
               {value}
             </div>
           ))}
@@ -38,30 +42,51 @@ export default function Home() {
         <ItemList>
           {!isLoading &&
             isInit &&
-            data?.map((item) => (
-              <Item key={item.url} onClick={() => handleItemClick(item.url)}>
-                <div className="thumbnail">
-                  <img src={item.image} />
-                </div>
-                <div className="title">{item.name.slice(0, 40)}</div>
-
-                {!!item.originPrice && <div className="original-price">{Number(item.originPrice).toLocaleString()}</div>}
-                {item.price > 0 ? (
+            data
+              ?.filter((item) => item.price !== null)
+              .map((item) => (
+                <Item key={item.url} onClick={() => handleItemClick(item.url)}>
+                  <div className="thumbnail">
+                    <img src={item.image} />
+                  </div>
+                  <div className="title">{item.name.slice(0, 40)}</div>
+                  {!!item.originPrice && <div className="original-price">{Number(item.originPrice).toLocaleString()}</div>}
                   <div className="price">
                     {Number(item.price).toLocaleString()}
                     <span style={{ marginLeft: "2px" }}>원</span>
                   </div>
-                ) : (
-                  <div style={{ color: "#e97070" }}>품절</div>
-                )}
-                {!!item.danawaPrice && (
-                  <div className="danawa-price">
-                    <span>다나와</span>
-                    {Number(item.danawaPrice).toLocaleString()}
+                  {!!item.danawaPrice && (
+                    <div className="danawa-price">
+                      <span>다나와</span>
+                      {Number(item.danawaPrice).toLocaleString()}
+                    </div>
+                  )}
+                </Item>
+              ))}
+
+          {!isLoading &&
+            isInit &&
+            data
+              ?.filter((item) => item.price === null)
+              .map((item) => (
+                <Item key={item.url} onClick={() => handleItemClick(item.url)}>
+                  <div className="thumbnail">
+                    <img src={item.image} />
                   </div>
-                )}
-              </Item>
-            ))}
+                  <div className="title">{item.name.slice(0, 40)}</div>
+
+                  {!!item.originPrice && <div className="original-price">{Number(item.originPrice).toLocaleString()}</div>}
+
+                  <div style={{ color: "#e97070" }}>품절</div>
+
+                  {!!item.danawaPrice && (
+                    <div className="danawa-price">
+                      <span>다나와</span>
+                      {Number(item.danawaPrice).toLocaleString()}
+                    </div>
+                  )}
+                </Item>
+              ))}
         </ItemList>
       </Container>
     </Layout>
@@ -129,11 +154,12 @@ const Item = styled.div`
   }
 
   & > .title {
-    margin-top: 8px;
+    margin-top: 12px;
     margin-bottom: 8px;
     line-height: 1.14;
 
     ${BreakPoint.Mobile} {
+      margin-top: 10px;
       font-size: 14px;
     }
   }
