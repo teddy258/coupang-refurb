@@ -1,14 +1,20 @@
 export enum EItemType {
-  AIRPOT = "에어팟",
-  WATCH = "애플워치",
   PHONE = "아이폰",
-  MACBOOK = "맥북",
   PAD = "아이패드",
+  WATCH = "애플워치",
+  MACBOOK = "맥북",
+  AIRPOT = "에어팟",
   MAC = "맥",
 }
 
-export type TItemType = keyof typeof EItemType;
+export enum ESortType {
+  PRICE = "저가순",
+  SALE = "할인율순",
+  NAME = "이름순",
+}
 
+export type TItemType = keyof typeof EItemType;
+export type TSortType = keyof typeof ESortType;
 export interface IItemModel {
   name: string;
   detail: string;

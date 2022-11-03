@@ -1,28 +1,30 @@
-import Head from "next/head";
-import Image from "next/image";
+import { Input } from "antd";
 
 import styled from "@emotion/styled";
 import { useHttpRequest } from "../hooks/useHttpRequest";
-import axios from "axios";
+
 import { useEffect, useState } from "react";
-import { EItemType, IItemModel, TItemType } from "../types/item.interface";
-import { genClassNames, injectClassNames } from "../utils/utils";
+import { EItemType, ESortType, TItemType, TSortType } from "../types/item.interface";
+import { genClassNames } from "../utils/utils";
 import { BreakPoint } from "../utils/constatns";
 import { useInterval } from "react-use";
 import { DateTime } from "luxon";
+import { getRefurbishedItems } from "../api";
+
+import { FaTelegram } from "react-icons/fa";
 
 export default function Home() {
-  const [type, setType] = useState<TItemType | string>("AIRPOT");
+  const [type, setType] = useState<TItemType>("PHONE");
+  const [sort, setSort] = useState<TSortType>("PRICE");
+  const [keyword, setKeyword] = useState("");
   const [now, setNow] = useState("");
 
-  const [data, fetch, isLoading, isInit] = useHttpRequest(() =>
-    axios.get<{ data: IItemModel[] }>(`http://13.125.204.4:5000/api/v1/hoon/product/returnItem?type=${type}`).then((res) => res.data.data)
-  );
+  const [data, fetch, isLoading, isInit] = useHttpRequest(() => getRefurbishedItems(type, sort, encodeURIComponent(keyword)));
 
   useEffect(() => {
     fetch();
     setNow(DateTime.now().toFormat("hh시 mm분 ss초"));
-  }, [type]);
+  }, [type, sort, keyword]);
 
   useInterval(() => {
     setNow(DateTime.now().toFormat("hh시 mm분 ss초"));
@@ -32,18 +34,46 @@ export default function Home() {
     window.open(url);
   }
 
+  function handleTelegramClick() {
+    window.open("https://t.me/+vM15DX7dB085NGY9");
+  }
+
+  function handleSearch(val: string) {
+    setKeyword(val);
+  }
+
   return (
     <Layout>
       <Container>
-        <Title>쿠팡 리퍼몰 </Title>
+        <Title>오늘의 득템</Title>
         <Time>{now} 실시간 최신가</Time>
         <CategoryRow>
           {Object.entries(EItemType).map(([key, value]) => (
-            <div key={key} onClick={() => setType(key)} className={genClassNames(["item-type"], ["selected", type === key])}>
+            <div
+              key={key}
+              onClick={() => setType(key as TItemType)}
+              className={genClassNames(["item-type"], ["selected", type === (key as TItemType)])}
+            >
               {value}
             </div>
           ))}
         </CategoryRow>
+
+        <SortRow>
+          <SearchInput onSearch={handleSearch} placeholder="검색" />
+          <div className="list">
+            {Object.entries(ESortType).map(([key, value]) => (
+              <div
+                key={key}
+                onClick={() => setSort(key as TSortType)}
+                className={genClassNames(["sort-type"], ["selected", sort === (key as TSortType)])}
+              >
+                {value}
+              </div>
+            ))}
+          </div>
+        </SortRow>
+        <Divider />
         <ItemList>
           {!isLoading &&
             isInit &&
@@ -93,10 +123,77 @@ export default function Home() {
                 </Item>
               ))}
         </ItemList>
+        <Footer>
+          본 페이지는 쿠팡 파트너스 활동의 일환으로,
+          <br /> 링크를 통해 구매하시게 되면 서버에 소정의 수익이 발생할 수 있습니다.
+          <br /> 구매하시는 상품의 가격엔 영향이 없고,
+          <br /> 모든 수익은 서버 유지 및 관리 비용으로 사용됩니다.
+        </Footer>
       </Container>
+      <TelegramIcon onClick={handleTelegramClick} />
     </Layout>
   );
 }
+
+const TelegramIcon = styled(FaTelegram)`
+  cursor: pointer;
+
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+
+  ${BreakPoint.Mobile} {
+    bottom: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+  }
+`;
+
+const SearchInput = styled(Input.Search)`
+  width: 280px;
+
+  ${BreakPoint.Mobile} {
+    width: 160px;
+  }
+`;
+
+const SortRow = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 20px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  align-items: center;
+
+  & > .list {
+    display: flex;
+
+    & > .sort-type {
+      margin: 0 8px;
+      padding-bottom: 3px;
+
+      font-size: 16px;
+
+      ${BreakPoint.Mobile} {
+        margin: 0 5px;
+        font-size: 13px;
+      }
+
+      &.selected {
+        font-weight: bold;
+        border-bottom: 3px solid #191919;
+
+        ${BreakPoint.Mobile} {
+          border-width: 2px;
+        }
+      }
+    }
+  }
+`;
 
 const Layout = styled.div`
   width: 100%;
@@ -114,6 +211,11 @@ const Time = styled.div`
   text-align: center;
   font-size: 16px;
   margin-top: 16px;
+
+  ${BreakPoint.Mobile} {
+    font-size: 14px;
+    margin-top: 12px;
+  }
 `;
 
 const Title = styled.div`
@@ -122,6 +224,11 @@ const Title = styled.div`
   font-size: 28px;
   font-weight: bold;
   margin-top: 28px;
+
+  ${BreakPoint.Mobile} {
+    font-size: 26px;
+    margin-top: 24px;
+  }
 `;
 
 const Item = styled.div`
@@ -256,4 +363,18 @@ const CategoryRow = styled.div`
       border: none;
     }
   }
+`;
+const Footer = styled.div`
+  text-align: center;
+  font-size: 14px;
+  color: #898989;
+  line-height: 1.4;
+  margin: 50px 0;
+`;
+
+const Divider = styled.div`
+  width: 90%;
+  margin: 20px auto;
+  height: 1px;
+  background-color: #e9e9e9;
 `;
