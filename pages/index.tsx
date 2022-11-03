@@ -1,9 +1,9 @@
-import { Input } from "antd";
+import { Input, InputRef } from "antd";
 
 import styled from "@emotion/styled";
 import { useHttpRequest } from "../hooks/useHttpRequest";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EItemType, ESortType, TItemType, TSortType } from "../types/item.interface";
 import { genClassNames } from "../utils/utils";
 import { BreakPoint } from "../utils/constatns";
@@ -18,13 +18,14 @@ export default function Home() {
   const [sort, setSort] = useState<TSortType>("PRICE");
   const [keyword, setKeyword] = useState("");
   const [now, setNow] = useState("");
+  const searchRef = useRef<InputRef>();
 
-  const [data, fetch, isLoading, isInit] = useHttpRequest(() => getRefurbishedItems(type, sort, encodeURIComponent(keyword)));
+  const [data, fetch, isLoading, isInit] = useHttpRequest(() => getRefurbishedItems(type, sort, keyword));
 
   useEffect(() => {
     fetch();
     setNow(DateTime.now().toFormat("hh시 mm분 ss초"));
-  }, [type, sort, keyword]);
+  }, [type, sort]);
 
   useInterval(() => {
     setNow(DateTime.now().toFormat("hh시 mm분 ss초"));
@@ -38,8 +39,13 @@ export default function Home() {
     window.open("https://t.me/+vM15DX7dB085NGY9");
   }
 
-  function handleSearch(val: string) {
-    setKeyword(val);
+  function handleSearch() {
+    fetch();
+  }
+
+  function handleTabChange(tab: TItemType) {
+    setKeyword("");
+    setType(tab);
   }
 
   return (
@@ -51,7 +57,7 @@ export default function Home() {
           {Object.entries(EItemType).map(([key, value]) => (
             <div
               key={key}
-              onClick={() => setType(key as TItemType)}
+              onClick={() => handleTabChange(key as TItemType)}
               className={genClassNames(["item-type"], ["selected", type === (key as TItemType)])}
             >
               {value}
@@ -60,7 +66,7 @@ export default function Home() {
         </CategoryRow>
 
         <SortRow>
-          <SearchInput onSearch={handleSearch} placeholder="검색" />
+          <SearchInput onChange={(e) => setKeyword(e.target.value)} value={keyword} onSearch={handleSearch} placeholder="검색" />
           <div className="list">
             {Object.entries(ESortType).map(([key, value]) => (
               <div
@@ -90,6 +96,13 @@ export default function Home() {
                     {Number(item.price).toLocaleString()}
                     <span style={{ marginLeft: "2px" }}>원</span>
                   </div>
+                  {!!item.cardPrice && (
+                    <div className="card-price">
+                      <span>카드할인</span>
+                      {Number(item.cardPrice).toLocaleString()}
+                      <span style={{ marginLeft: "2px" }}></span>
+                    </div>
+                  )}
                   {!!item.danawaPrice && (
                     <div className="danawa-price">
                       <span>다나와</span>
@@ -113,13 +126,6 @@ export default function Home() {
                   {!!item.originPrice && <div className="original-price">{Number(item.originPrice).toLocaleString()}</div>}
 
                   <div style={{ color: "#e97070" }}>품절</div>
-
-                  {!!item.danawaPrice && (
-                    <div className="danawa-price">
-                      <span>다나와</span>
-                      {Number(item.danawaPrice).toLocaleString()}
-                    </div>
-                  )}
                 </Item>
               ))}
         </ItemList>
@@ -130,25 +136,44 @@ export default function Home() {
           <br /> 모든 수익은 서버 유지 및 관리 비용으로 사용됩니다.
         </Footer>
       </Container>
-      <TelegramIcon onClick={handleTelegramClick} />
+      <TelegramIcon onClick={handleTelegramClick}>
+        <FaTelegram className={genClassNames(["icon"])} />
+        <div className="text">실시간 알람</div>
+      </TelegramIcon>
     </Layout>
   );
 }
 
-const TelegramIcon = styled(FaTelegram)`
-  cursor: pointer;
+const TelegramIcon = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+  cursor: pointer;
+  position: absolute;
+
+  top: 16px;
+  right: 16px;
 
   ${BreakPoint.Mobile} {
-    bottom: 16px;
-    right: 16px;
-    width: 36px;
-    height: 36px;
+    top: 10px;
+    right: 10px;
+  }
+
+  & > .text {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  & > .icon {
+    width: 34px;
+    height: 34px;
+
+    ${BreakPoint.Mobile} {
+      width: 28px;
+      height: 28px;
+    }
   }
 `;
 
@@ -284,7 +309,7 @@ const Item = styled.div`
   }
 
   & > .danawa-price {
-    margin-top: 6px;
+    margin-top: 7px;
     & > span {
       color: #00c113;
       font-size: 11px;
@@ -292,6 +317,17 @@ const Item = styled.div`
     }
 
     font-size: 12px;
+  }
+
+  & > .card-price {
+    margin-top: 6px;
+    & > span {
+      color: #ff5121;
+      font-size: 12px;
+      margin-right: 3px;
+    }
+
+    font-size: 13px;
   }
 
   & > .original-price {
