@@ -53,6 +53,8 @@ export default function Home() {
       <Container>
         <Title>오늘의 득템</Title>
         <Time>{now} 실시간 최신가</Time>
+
+        <MarketingText>해당 상품은 쿠팡 반품 제품입니다</MarketingText>
         <CategoryRow>
           {Object.entries(EItemType).map(([key, value]) => (
             <div
@@ -91,16 +93,19 @@ export default function Home() {
                     <img src={item.image} />
                   </div>
                   <div className="title">{item.name.slice(0, 40)}</div>
+                  <div className="desc">{item.detail}</div>
                   {!!item.originPrice && <div className="original-price">{Number(item.originPrice).toLocaleString()}</div>}
-                  <div className="price">
-                    {Number(item.price).toLocaleString()}
-                    <span style={{ marginLeft: "2px" }}>원</span>
-                  </div>
-                  {!!item.cardPrice && (
+
+                  {!!item.cardPrice ? (
                     <div className="card-price">
                       <span>카드할인</span>
                       {Number(item.cardPrice).toLocaleString()}
                       <span style={{ marginLeft: "2px" }}></span>
+                    </div>
+                  ) : (
+                    <div className="price">
+                      {Number(item.price).toLocaleString()}
+                      <span style={{ marginLeft: "2px" }}>원</span>
                     </div>
                   )}
                   {!!item.danawaPrice && (
@@ -135,14 +140,55 @@ export default function Home() {
           <br /> 구매하시는 상품의 가격엔 영향이 없고,
           <br /> 모든 수익은 서버 유지 및 관리 비용으로 사용됩니다.
         </Footer>
+        <TelegramIcon onClick={handleTelegramClick}>
+          <FaTelegram className={genClassNames(["icon"])} />
+          <div className="text">실시간 알람</div>
+        </TelegramIcon>
       </Container>
-      <TelegramIcon onClick={handleTelegramClick}>
-        <FaTelegram className={genClassNames(["icon"])} />
-        <div className="text">실시간 알람</div>
-      </TelegramIcon>
     </Layout>
   );
 }
+
+const MarketingText = styled.div`
+  margin-bottom: 10px;
+  padding-left: 10px;
+  margin-top: 46px;
+
+  ${BreakPoint.Mobile} {
+    font-size: 13px;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+`;
+
+const OverlaySale = styled.div`
+  display: flex;
+  background-color: #ff2b2b;
+  color: white;
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  font-size: 13px;
+  padding: 4px 6px 2px;
+  z-index: 3;
+  border-radius: 4px;
+  line-height: 1;
+`;
+
+const OverlayFilter = styled.div`
+  border-radius: 6px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 100%);
+  background-blend-mode: multiply;
+  mix-blend-mode: normal;
+  z-index: 1;
+`;
 
 const TelegramIcon = styled.div`
   display: flex;
@@ -230,6 +276,7 @@ const Layout = styled.div`
 const Container = styled.div`
   width: 100%;
   max-width: 940px;
+  position: relative;
 `;
 
 const Time = styled.div`
@@ -260,15 +307,17 @@ const Title = styled.div`
 const Item = styled.div`
   cursor: pointer;
 
-  width: calc(20% - 16px);
-  min-width: calc(20% - 16px);
+  width: calc(25% - 15px);
+  min-width: calc(25% - 15px);
 
   margin-bottom: 20px;
   margin-right: 20px;
   min-height: 288px;
 
-  &:nth-of-type(5n) {
-    margin-right: 0px;
+  ${BreakPoint.BiggerThanMobile} {
+    &:nth-of-type(4n) {
+      margin-right: 0px;
+    }
   }
 
   ${BreakPoint.Mobile} {
@@ -284,12 +333,14 @@ const Item = styled.div`
   }
 
   & > .thumbnail {
+    border-radius: 6px;
     width: 100%;
     padding-top: 100%;
     height: 0;
     position: relative;
 
     & > img {
+      border-radius: 6px;
       position: absolute;
       width: 100%;
       height: 100%;
@@ -299,13 +350,26 @@ const Item = styled.div`
   }
 
   & > .title {
+    font-size: 16px;
     margin-top: 12px;
     margin-bottom: 8px;
     line-height: 1.14;
 
     ${BreakPoint.Mobile} {
+      margin-bottom: 4px;
       margin-top: 10px;
       font-size: 14px;
+    }
+  }
+
+  & > .desc {
+    margin-bottom: 6px;
+    line-height: 1.14;
+    font-size: 14px;
+    color: #5c5c5c;
+
+    ${BreakPoint.Mobile} {
+      font-size: 12px;
     }
   }
 
@@ -321,22 +385,38 @@ const Item = styled.div`
   }
 
   & > .card-price {
-    margin-top: 6px;
+    display: flex;
+    margin-top: 4px;
+    font-weight: bold;
+
     & > span {
       color: #ff5121;
-      font-size: 12px;
+      font-size: 14px;
       margin-right: 3px;
+
+      ${BreakPoint.Mobile} {
+        font-size: 12px;
+        margin-right: 4px;
+      }
     }
 
-    font-size: 13px;
+    font-size: 16px;
+
+    ${BreakPoint.Mobile} {
+      font-size: 13px;
+    }
   }
 
   & > .original-price {
-    font-size: 13px;
+    font-size: 14px;
     letter-spacing: 0.6px;
-    color: #808080;
+    color: #959595;
     text-decoration: line-through;
     margin-bottom: 4px;
+
+    ${BreakPoint.Mobile} {
+      font-size: 13px;
+    }
   }
 
   & > .price {
@@ -372,10 +452,10 @@ const CategoryRow = styled.div`
   border: 1px solid #808080;
   flex-wrap: wrap;
 
-  margin: 42px 6px 0px;
+  margin: 0px 6px 42px;
 
   ${BreakPoint.Mobile} {
-    margin: 26px 6px 0px;
+    margin: 0px 6px 26px;
   }
 
   & > .item-type {

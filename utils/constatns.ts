@@ -5,6 +5,7 @@ export const BreakPoint = {
   SmallerThanTablet: "@media screen and (max-width: 1024px)",
   SmallerThanLargeTablet: "@media screen and (max-width: 1210px)",
   SmallerThanDesktop: "@media screen and (max-width: 1440px)",
+  BiggerThanMobile: "@media screen and (min-width: 769px)",
   BiggerThanDesktop: "@media screen and (min-width: 1440px)",
   BetweenDesktopTablet: "@media screen and (min-width: 1024px) and (max-width: 1440px)",
 };

@@ -25,4 +25,5 @@ export interface IItemModel {
   cardPrice: number;
   image: string;
   url: string;
+  sale: number;
 }
