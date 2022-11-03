@@ -6,7 +6,7 @@ import { useHttpRequest } from "../hooks/useHttpRequest";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { EItemType, IItemModel, TItemType } from "../types/item.interface";
-import { injectClassNames } from "../utils/utils";
+import { genClassNames, injectClassNames } from "../utils/utils";
 import { BreakPoint } from "../utils/constatns";
 import { useInterval } from "react-use";
 import { DateTime } from "luxon";
@@ -39,11 +39,7 @@ export default function Home() {
         <Time>{now} 실시간 최신가</Time>
         <CategoryRow>
           {Object.entries(EItemType).map(([key, value]) => (
-            <div
-              key={key}
-              onClick={() => setType(key)}
-              className={injectClassNames({ name: "item-type" }, { name: "selected", condition: type === key })}
-            >
+            <div key={key} onClick={() => setType(key)} className={genClassNames(["item-type"], ["selected", type === key])}>
               {value}
             </div>
           ))}
