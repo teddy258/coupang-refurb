@@ -198,6 +198,7 @@ const SortRow = styled.div`
     display: flex;
 
     & > .sort-type {
+      cursor: pointer;
       margin: 0 8px;
       padding-bottom: 3px;
 
