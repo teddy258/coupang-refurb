@@ -27,3 +27,25 @@ export interface IItemModel {
   url: string;
   sale: number;
 }
+
+export interface ICategoryModel {
+  id: string;
+  name: string;
+  displayName: string;
+  depth: number;
+  parentId: string;
+}
+
+export interface IUserItemModel {
+  id: number;
+  name: string;
+  price: number;
+  originPrice: number;
+  cardInfo: string;
+  cardPrice: number;
+  image: string;
+  sale: number;
+  url: string;
+  userPrice: number;
+  soldOut: boolean;
+}

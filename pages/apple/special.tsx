@@ -1,21 +1,21 @@
 import { Input, InputRef } from "antd";
 
 import styled from "@emotion/styled";
-import { useHttpRequest } from "../hooks/useHttpRequest";
+import { useHttpRequest } from "../../hooks/useHttpRequest";
 
 import { useEffect, useRef, useState } from "react";
-import { ESortType, ICategoryModel, IItemModel, TSortType } from "../types/item.interface";
-import { genClassNames } from "../utils/utils";
-import { BreakPoint } from "../utils/constatns";
+import { ESortType, ICategoryModel, IItemModel, TSortType } from "../../types/item.interface";
+import { genClassNames } from "../../utils/utils";
+import { BreakPoint } from "../../utils/constatns";
 import { useInterval } from "react-use";
 import { DateTime } from "luxon";
-import { getRefurbishedItemList } from "../api";
+import { getRefurbishedItemList } from "../../api";
 
 import { FaTelegram } from "react-icons/fa";
-import { gaClient } from "../utils/ga";
-import CategoryComponent from "../components/CategoryComponent";
+import { gaClient } from "../../utils/ga";
+import CategoryComponent from "../../components/CategoryComponent";
 
-export default function Home() {
+export default function Special() {
   const [category, setCategory] = useState<ICategoryModel>();
   const [sort, setSort] = useState<TSortType>("SALE");
   const [keyword, setKeyword] = useState("");
@@ -23,10 +23,9 @@ export default function Home() {
   const [size, setSize] = useState(100);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
-  const searchRef = useRef<InputRef>();
 
   const [data, fetch, isLoading, isInit] = useHttpRequest((categoryId: string) =>
-    getRefurbishedItemList({ category: categoryId, sort, title: keyword, size, page }).then((res) => {
+    getRefurbishedItemList({ category: categoryId, sort, title: keyword, size, page, brand: "APPLE" }).then((res) => {
       setTotal(res.data.totalCount);
       return res.data.data;
     })
@@ -65,9 +64,9 @@ export default function Home() {
   return (
     <Layout>
       <Container>
-        <Title>오늘의 득템</Title>
+        <Title>애플 특별관</Title>
         <Time>{now} 실시간 최신가</Time>
-        <CategoryComponent onCategoryChange={handleCategoryChange} />
+        <CategoryComponent brand="APPLE" onCategoryChange={handleCategoryChange} />
 
         <SortRow>
           <SearchInput onChange={(e) => setKeyword(e.target.value)} value={keyword} onSearch={handleSearch} placeholder="검색" />
